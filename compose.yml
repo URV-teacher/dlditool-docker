@@ -7,6 +7,8 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./:/input
+      - ./input:/input
+    entrypoint: sh -c "dlditool /usr/bin/mpcf.dldi /input/nds.nds"
+
 
 

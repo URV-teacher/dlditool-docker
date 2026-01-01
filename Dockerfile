@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Remove used packages to make it lighter
 # Add dlditool and the mpcf patch
 RUN mkdir -p /usr/bin && \
-    wget --no-check-certificate https://www.chishm.com/DLDI/downloads/mpcf.dldi -O /usr/bin/mpcf.dldi && \
+    wget --no-check-certificate https://www.chishm.com/DLDI/downloads/mpcf.dldi -O /usr/bin/dldi/mpcf.dldi && \
     wget --no-check-certificate https://www.chishm.com/DLDI/downloads/dlditool-linux-x86_64.zip -O /tmp/dlditool.zip && \
     unzip -o /tmp/dlditool.zip -d /usr/bin && \
     chmod +x /usr/bin/dlditool && \

@@ -209,3 +209,6 @@ __marimo__/
 # own rules
 *.nds
 *.elf
+
+# Assets downloaded by scripts/download_assets.sh
+assets/

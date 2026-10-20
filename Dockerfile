@@ -1,31 +1,17 @@
-# Use a lightweight base image
-FROM debian:latest
+# dlditool, to patch NDS ROMs with DLDI drivers. The installation is done by the scripts in scripts/, the same ones used
+# to install it in a host (see README.md).
+# Base image of the BMDE images (docker-bake.hcl of bmde replaces this stage by the base image being built)
+FROM aleixmt/bmde-base:latest AS bmde-base
 
-ENV DLDITOOL=/usr/bin/dlditool
+FROM bmde-base
 
-# Install devkitARM directory
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    wget \
-    unzip
-
-# Remove used packages to make it lighter
-# Add dlditool and the mpcf patch
-RUN mkdir -p /usr/bin && \
-    mkdir -p /usr/bin/dldi && \
-    wget --no-check-certificate https://www.chishm.com/DLDI/downloads/mpcf.dldi -O /usr/bin/dldi/mpcf.dldi && \
-    wget --no-check-certificate https://www.chishm.com/DLDI/downloads/dlditool-linux-x86_64.zip -O /tmp/dlditool.zip && \
-    unzip -o /tmp/dlditool.zip -d /usr/bin && \
-    chmod +x /usr/bin/dlditool && \
-    rm /tmp/dlditool.zip
-
-# Create directory for input volume
-RUN mkdir -p /input
-
-# Remove used packages to make it lighter
-RUN apt-get purge -y \
-    wget \
-    && apt-get autoremove -y \
+RUN --mount=type=bind,target=/component \
+    /component/scripts/install_dlditool.sh \
     && rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT ["dlditool"]
+# Directory where the ROMs to patch are mounted
+RUN mkdir -p /input
+WORKDIR /input
+
+ENTRYPOINT ["bmde-exec", "dlditool"]
 CMD []

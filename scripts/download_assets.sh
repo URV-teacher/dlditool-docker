@@ -11,26 +11,26 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 # shellcheck source=download_lib.sh
 source "${SCRIPT_DIR}/download_lib.sh" "$@"
 
-# Builds the libfatdir example of devkitPro into the file $1: with the local devkitARM if there is one (DEVKITPRO), or
-# else with the devkitARM image (DEVKITARM_IMAGE), which installs the examples. The build is reproducible
+# Builds the libfatdir example of devkitPro into the file $1, from the NDS examples of devkitPro at the version
+# installed by devkitarm-nds-docker (src/install_examples.sh): with the local devkitARM if there is one (DEVKITARM), or
+# else with the devkitARM image (DEVKITARM_IMAGE). The build is reproducible
 # shellcheck disable=SC2329  # Called through a function: source of asset
 build_libfatdir() {
-  local example="examples/nds/filesystem/libfat/libfatdir" build_dir
+  local example="filesystem/libfat/libfatdir" commit="54926f9f2d44ab0ea383acd524851837fd3c2998" build_dir build status=0
   build_dir="$(mktemp -d)"
-  if [ -n "${DEVKITPRO:-}" ] && [ -d "${DEVKITPRO}/${example}" ]; then
-    cp -r "${DEVKITPRO}/${example}" "${build_dir}/libfatdir" && make -C "${build_dir}/libfatdir" \
-      && cp "${build_dir}/libfatdir/libfatdir.nds" "$1"
+  if [ -n "${DEVKITARM:-}" ] && [ -x "${DEVKITARM}/bin/arm-none-eabi-gcc" ]; then
+    build=(make -C "${build_dir}/libfatdir")
   else
-    # shellcheck disable=SC2016  # Expanded inside the container
-    docker run --rm --user "$(id -u):$(id -g)" -v "${build_dir}:/output" --entrypoint bash \
-      "${DEVKITARM_IMAGE:-aleixmt/bmde-linux:latest}" -c '
-        set -e
-        cp -r "${DEVKITPRO}/'"${example}"'" /tmp/libfatdir
-        make -C /tmp/libfatdir
-        cp /tmp/libfatdir/libfatdir.nds /output/' \
-      && cp "${build_dir}/libfatdir.nds" "$1"
+    build=(docker run --rm --user "$(id -u):$(id -g)" -v "${build_dir}/libfatdir:/libfatdir" --entrypoint bash
+      "${DEVKITARM_IMAGE:-aleixmt/bmde-linux:latest}" -c "make -C /libfatdir")
   fi
-  local status=$?
+  download "https://github.com/devkitPro/nds-examples/archive/${commit}.tar.gz" "${build_dir}/nds-examples.tar.gz" \
+    && mkdir "${build_dir}/libfatdir" \
+    && tar -xzf "${build_dir}/nds-examples.tar.gz" -C "${build_dir}/libfatdir" --strip-components 4 \
+      "nds-examples-${commit}/${example}" \
+    && "${build[@]}" \
+    && cp "${build_dir}/libfatdir/libfatdir.nds" "$1" \
+    || status=$?
   rm -rf "${build_dir}"
   return "${status}"
 }

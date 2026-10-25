@@ -22,7 +22,7 @@ build_libfatdir() {
     build=(make -C "${build_dir}/libfatdir")
   else
     build=(docker run --rm --user "$(id -u):$(id -g)" -v "${build_dir}/libfatdir:/libfatdir" --entrypoint bash
-      "${DEVKITARM_IMAGE:-aleixmt/bmde-linux:latest}" -c "make -C /libfatdir")
+      "${DEVKITARM_IMAGE:-aleixmt/devkitarm-nds:latest}" -c "make -C /libfatdir")
   fi
   download "https://github.com/devkitPro/nds-examples/archive/${commit}.tar.gz" "${build_dir}/nds-examples.tar.gz" \
     && mkdir "${build_dir}/libfatdir" \

@@ -10,7 +10,7 @@ docker run --rm -v "$PWD:/input" aleixmt/dlditool mpcf.dldi program.nds
 ## Build and installation
 `scripts/download_assets.sh` downloads dlditool and `mpcf.dldi` into `assets/`, and builds the ROM used by the test (the
 `libfatdir` example of devkitPro) with the local devkitARM if there is one, or else with the devkitARM image
-(`aleixmt/bmde-linux`, see [devkitarm-nds-docker](https://github.com/URV-teacher/devkitarm-nds-docker)). Every asset is
+(`aleixmt/devkitarm-nds`, see [devkitarm-nds-docker](https://github.com/URV-teacher/devkitarm-nds-docker)). Every asset is
 checked against its SHA-256 (see [external
 resources](https://github.com/URV-teacher/bmde/blob/master/docs/development/external-resources.md) of bmde).
 
